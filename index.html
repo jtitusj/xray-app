@@ -7,7 +7,7 @@
     <title>Page Title</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
+    <!-- <script src="main.js"></script> -->
     <style>
         body {
             margin: 20px auto;
@@ -27,18 +27,25 @@
             /* padding: 10px;   */
         }
 
+        .image-block-item > img {
+            width: 300px;
+            height: 300px;
+        }
+
     </style>
 </head>
 <body>
     <!-- <h1>Test</h1> -->
+    <input type='file' onchange="readURL(this);" />
     <div class='image-block'>
+        
         <div class='image-block-item'>
             <div>Original X-ray image</div>
-            <img id='image1'>
+            <img id='image1' src="images/neko_girl_1.jpg">
         </div>
         <div class='image-block-item'>
             <div>Colorized to Identify Region of Interest</div>
-            <img id='image2'>
+            <img id='image2' src="images/neko_girl_1.jpg">
         </div>
         <div>ChexNet 121-layer CNN: 85% Pneumonia positive</div>
     </div>
@@ -53,46 +60,32 @@
         const image1 = document.querySelector('#image1');
         const image2 = document.querySelector('#image2');
 
-    
-        // does not work
-        // fetch('/get_image', {method: 'GET'}).then(
-        //   function(result){
-        //     console.log('image retrieval success!')
-        //     console.log(result.json())
-        //     // console.log(JSON.stringify(result.json()));
-        // }).finally(function() {
-        //     console.log('done');
-        // });
+        function process_image(b64_image) {
+            fetch('/process_image', {
+                method: 'POST',
+                body: b64_image
+            }).then(
+            function (response){
+                return response.text();
+            }).then(function(result){
+                console.log(result);
+                // const b64_image = "data:image/jpeg;base64,"+result
+                const b64_image = result;
+                image2.setAttribute('src', b64_image);
+            })
+        }
 
-        fetch('/process_image', {method: 'GET'}).then(
-        function (response){
-            return response.text();
-        }).then(function(result){
-            if (result == 'True') {
-                fetch('/get_image1', {method: 'GET'}).then(
-                function (response){
-                        return response.text();
-                }).then(function(result){
-                    const b64_image = "data:image/jpeg;base64,"+result
-
-                    image1.setAttribute('src', b64_image);
-                })
-
-                fetch('/get_image2', {method: 'GET'}).then(
-                function (response){
-                    return response.text();
-                }).then(function(result){
-                    const b64_image = "data:image/jpeg;base64,"+result
-
-                    image2.setAttribute('src', b64_image);
-                })
-            } 
-            else {
-                console.log('loading failed');
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    console.log(e.target.result);
+                    image1.setAttribute('src', e.target.result);
+                    process_image(e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
             }
-        })
-
-        
+        }    
 
     </script>
 </body>

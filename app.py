@@ -1,58 +1,52 @@
-from flask import Flask, render_template
-from flask import send_from_directory
+from flask import Flask, render_template, request, send_from_directory
+
 import pandas as pd
-import json
-import os
-import base64
-
-app = Flask(__name__, static_url_path='')
+import json, os, base64, time, re, io
+import matplotlib.image as mpimg
 
 
-# df = pd.read_csv('census.csv')
-# df.columns = ['province', 'city_muni', '1960', '1970', '1975', '1980', \
-#             '1990', '1995', '2000', '2007', '2010', '2015']
+app = Flask(__name__, static_url_path="", static_folder="")
 
 @app.route('/')
 def root():
-    print('root!!')
     return send_from_directory('', 'index.html')
-    # return app.send_static_file('/index.html')
-    # return 'hi'
 
-# @app.route('/census/latest')
-# def get_latest():
-#     filtered_df = df[['province', 'city_muni', '2015']]
-#     # print(filtered_df)
-#     return json.dumps(filtered_df.to_dict())
-
-# @app.route('/census/<province>/<city>')
-# def get_values_province_city(province, city):
-#     filtered_df = df[(df['province'] == province) & (df['city_muni'] == city)]
-#     return json.dumps(filtered_df.to_json(orient='split'))
-
-@app.route('/process_image')
+@app.route('/process_image', methods=['POST'])
 def process_image():
     # process
-    success = True
-    return str(success)
+    encoded_image = request.data
+    encoded_image = re.findall(r'''(data:image\/\S+;base64,)(.+)''', encoded_image.decode('utf-8'))
+    metadata = encoded_image[0][0]
+    content = encoded_image[0][1]
 
-@app.route('/get_image1')
-def get_image1():
-    path = 'images/'
-    filename = path+"neko_girl_1.jpg" 
-    with open(filename, "rb") as f:
-        data = f.read()
-        encoded_image = base64.b64encode(data)
-    return encoded_image
+    # img = base64.b64decode(content)
+    # i = io.BytesIO(img)
+    # i = mpimg.imread(i, format='JPG')
 
-@app.route('/get_image2')
-def get_image2():
-    path = 'images/'
-    filename = path+"anime_girl.png" 
-    with open(filename, "rb") as f:
-        data = f.read()
-        encoded_image = base64.b64encode(data)
-    return encoded_image 
+    # print(i)
+    # print(type(request.data))
+
+    return (metadata+content).encode()
+
+
+# @app.route('/get_image1')
+# def get_image1():
+#     path = 'images/'
+#     filename = path+"neko_girl_1.jpg" 
+#     with open(filename, "rb") as f:
+#         data = f.read()
+#         encoded_image = base64.b64encode(data)
+#     return encoded_image
+
+# @app.route('/get_image2')
+# def get_image2():
+#     time.sleep(2)
+#     path = 'images/'
+#     filename = path+"anime_girl.png" 
+#     with open(filename, "rb") as f:
+#         data = f.read()
+#         encoded_image = base64.b64encode(data)
+#     return encoded_image 
 
 # @app.route('/get_image')
 # def get_image():
