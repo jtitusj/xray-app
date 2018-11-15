@@ -80,12 +80,10 @@
     <h3>Other Applications</h3>
     
     <script>
-
         const image1 = document.querySelector('#image1');
         const image2 = document.querySelector('#image2');
         const loader = document.querySelector('.loader');
         
-
         function process_image(b64_image) {
             fetch('/process_image', {
                 method: 'POST',
@@ -94,20 +92,19 @@
             function (response){
                 return response.text();
             }).then(function(result){
-                // console.log(result);
                 const b64_image = "data:image/png;base64,"+result;
-                // const b64_image = result;
-                // console.log(b64_image);
                 image2.setAttribute('src', b64_image);
                 loader.setAttribute('style', 'visibility: hidden;');
-            })
+            }).catch(function(e) {
+                alert(e);
+                loader.setAttribute('style', 'visibility: hidden;');
+            });
         }
 
         function readURL(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function (e) {
-                    // console.log(e.target.result);
                     loader.setAttribute('style', 'visibility: visible;');
                     image1.setAttribute('src', e.target.result);
                     process_image(e.target.result);

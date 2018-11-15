@@ -1,14 +1,31 @@
 from flask import Flask, render_template, request, send_from_directory
 
+import numpy as np
 import pandas as pd
 import json, os, base64, time, re, io
+
 import matplotlib.image as mpimg
 from PIL import Image
-
 from io import BytesIO
+from vis import visualization
+from keras.models import load_model
+import tensorflow as tf
+# from tensorflow import Graph, Session, load_model
+# from Keras import backend as K
 
-
+# os.environ["KERAS_BACKEND"] = "tensorflow"
 app = Flask(__name__, static_url_path="", static_folder="")
+
+global graph
+graph = tf.get_default_graph() 
+model_chexnet = load_model('bchou.hdf5')
+# model_chexnet._make_predict_function()
+
+# graph1 = Graph()
+# with graph1.as_default():
+#     session1 = Session()
+#     with session1.as_default():
+#         model = load_model('bchou.hdf5')
 
 @app.route('/')
 def root():
@@ -16,7 +33,6 @@ def root():
 
 @app.route('/process_image', methods=['POST'])
 def process_image():
-    time.sleep(1)
     # process
     encoded_image = request.data
     encoded_image = re.findall(r'''(data:image\/\S+;base64,)(.+)''', encoded_image.decode('utf-8'))
@@ -26,60 +42,72 @@ def process_image():
     img = base64.b64decode(content)
     i = io.BytesIO(img)
     i = mpimg.imread(i, format='JPG')
-    # i = i*(i<100)
-    i = (i/2).astype('uint8')
-
-    # img = base64.b64encode(i)
-    # return (metadata+content).encode()
-    # return metadata.encode()+img
+    if len(i.shape)>2:
+        i = i.mean(axis=2)
+    
+    label, prob, i = run(i, model_chexnet)
+    print(label, prob)
 
     img = Image.fromarray(i)
     img = convertToPNG(img)
 
     return base64.b64encode(img)
 
-
 def convertToPNG(im):
     with BytesIO() as f:
         im.save(f, format='PNG')
         return f.getvalue()
 
-# @app.route('/get_image1')
-# def get_image1():
-#     path = 'images/'
-#     filename = path+"neko_girl_1.jpg" 
-#     with open(filename, "rb") as f:
-#         data = f.read()
-#         encoded_image = base64.b64encode(data)
-#     return encoded_image
+# resize image
+def resize(img):
+    img_ = img.resize((224, 224))
+    
+    # remove extra dimension for some images
+    if len(img_.size) > 2:
+        img_ = img_[:, :, 0]
+        
+    return np.asarray(np.dstack((img_, img_, img_)), dtype=np.uint8)
 
-# @app.route('/get_image2')
-# def get_image2():
-#     time.sleep(2)
-#     path = 'images/'
-#     filename = path+"anime_girl.png" 
-#     with open(filename, "rb") as f:
-#         data = f.read()
-#         encoded_image = base64.b64encode(data)
-#     return encoded_image 
+# transform image to fit model preprocessing
+def transform_image(img):
+    img_ = img / 255
+    
+    # standardize using imagenet mean and std
+    imagenet_mean = np.array([0.485, 0.456, 0.406])
+    imagenet_std = np.array([0.229, 0.224, 0.225])
+    
+    return (img_ - imagenet_mean) / imagenet_std
 
-# @app.route('/get_image')
-# def get_image():
-#     path = 'images'
-#     files = ['neko_girl_1.jpg', 'anime_girl.png']
-#     filenames = [path+"\\"+file for file in files]
+def run(input_img, model):
+    # preprocess
+    img = Image.fromarray(input_img)
+    img_resized = resize(img)
+    img_scaled = transform_image(img_resized)
 
-#     encoded_images = {}
-#     for key, filename in zip(['img1','img2'], filenames):
-#         with open(filename, "rb") as f:
-#             data = f.read()
-#             encoded_image = base64.b64encode(data)
-#         # print('done encoding image')
-#         encoded_images[key] = encoded_image
-#         print(encoded_images)
-#     return json.dumps(encoded_images)
-#     # return 'lala'
-#     # return json.dumps({'lala': 1})
+    # labels
+    labels = ['Atelectasis', 'Cardiomegaly', 'Effusion', 'Infiltration', 'Mass',
+              'Nodule', 'Pneumonia', 'Pneumothorax', 'Consolidation', 'Edema',
+              'Emphysema', 'Fibrosis', 'Pleural_Thickening', 'Hernia']
+
+    # predict for image
+    input_ = np.array([img_scaled])
+    print(input_.shape)
+    # prediction = model.predict(input_)[0]
+
+    with graph.as_default():
+        prediction = model.predict(input_)[0]
+
+    pred_idx = prediction.argmax()
+    prob = prediction.max()
+    label = labels[pred_idx]
+
+    # # create region of interest map
+    layer_idx = len(model.layers) - 1
+    with graph.as_default():
+        cam = visualization.visualize_cam(model, layer_idx, pred_idx, np.array([img_scaled]))
+        img_overlay = visualization.overlay(cam, img_resized, .3)
+
+    return [label, prob, img_overlay]
 
 if __name__ == '__main__':
     app.run(debug=True)
