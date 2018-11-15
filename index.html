@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <script src="main.js"></script>
+    <style>
+        body {
+            margin: 20px auto;
+            width: 80%;
+        }
+        .image-block {
+            /* display: inline-block; */
+            /* width: 800px; */
+            text-align: center;
+            /* background-color: blue; */
+            margin: 0 auto;
+        }
+
+        .image-block > .image-block-item {
+            display: inline-block;
+            /* background-color: red; */
+            /* padding: 10px;   */
+        }
+
+    </style>
+</head>
+<body>
+    <!-- <h1>Test</h1> -->
+    <div class='image-block'>
+        <div class='image-block-item'>
+            <div>Original X-ray image</div>
+            <img id='image1'>
+        </div>
+        <div class='image-block-item'>
+            <div>Colorized to Identify Region of Interest</div>
+            <img id='image2'>
+        </div>
+        <div>ChexNet 121-layer CNN: 85% Pneumonia positive</div>
+    </div>
+
+    <h3>Instructions</h3>
+    <h3>Data Source</h3>
+    <h3>Model Used</h3>
+    <h3>Other Applications</h3>
+    
+    <script>
+
+        const image1 = document.querySelector('#image1');
+        const image2 = document.querySelector('#image2');
+
+    
+        // does not work
+        // fetch('/get_image', {method: 'GET'}).then(
+        //   function(result){
+        //     console.log('image retrieval success!')
+        //     console.log(result.json())
+        //     // console.log(JSON.stringify(result.json()));
+        // }).finally(function() {
+        //     console.log('done');
+        // });
+
+        fetch('/process_image', {method: 'GET'}).then(
+        function (response){
+            return response.text();
+        }).then(function(result){
+            if (result == 'True') {
+                fetch('/get_image1', {method: 'GET'}).then(
+                function (response){
+                        return response.text();
+                }).then(function(result){
+                    const b64_image = "data:image/jpeg;base64,"+result
+
+                    image1.setAttribute('src', b64_image);
+                })
+
+                fetch('/get_image2', {method: 'GET'}).then(
+                function (response){
+                    return response.text();
+                }).then(function(result){
+                    const b64_image = "data:image/jpeg;base64,"+result
+
+                    image2.setAttribute('src', b64_image);
+                })
+            } 
+            else {
+                console.log('loading failed');
+            }
+        })
+
+        
+
+    </script>
+</body>
+</html>
