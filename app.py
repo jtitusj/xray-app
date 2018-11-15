@@ -3,6 +3,9 @@ from flask import Flask, render_template, request, send_from_directory
 import pandas as pd
 import json, os, base64, time, re, io
 import matplotlib.image as mpimg
+from PIL import Image
+
+from io import BytesIO
 
 
 app = Flask(__name__, static_url_path="", static_folder="")
@@ -13,21 +16,33 @@ def root():
 
 @app.route('/process_image', methods=['POST'])
 def process_image():
+    time.sleep(1)
     # process
     encoded_image = request.data
     encoded_image = re.findall(r'''(data:image\/\S+;base64,)(.+)''', encoded_image.decode('utf-8'))
     metadata = encoded_image[0][0]
     content = encoded_image[0][1]
 
-    # img = base64.b64decode(content)
-    # i = io.BytesIO(img)
-    # i = mpimg.imread(i, format='JPG')
+    img = base64.b64decode(content)
+    i = io.BytesIO(img)
+    i = mpimg.imread(i, format='JPG')
+    # i = i*(i<100)
+    i = (i/2).astype('uint8')
 
-    # print(i)
-    # print(type(request.data))
+    # img = base64.b64encode(i)
+    # return (metadata+content).encode()
+    # return metadata.encode()+img
 
-    return (metadata+content).encode()
+    img = Image.fromarray(i)
+    img = convertToPNG(img)
 
+    return base64.b64encode(img)
+
+
+def convertToPNG(im):
+    with BytesIO() as f:
+        im.save(f, format='PNG')
+        return f.getvalue()
 
 # @app.route('/get_image1')
 # def get_image1():

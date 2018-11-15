@@ -21,6 +21,10 @@
             margin: 0 auto;
         }
 
+        .image-block-item {
+            position: relative;
+        }
+
         .image-block > .image-block-item {
             display: inline-block;
             /* background-color: red; */
@@ -30,6 +34,25 @@
         .image-block-item > img {
             width: 300px;
             height: 300px;
+        }
+
+        .loader {
+            visibility: hidden;
+            /* margin: auto auto; */
+            top: 79px;
+            left: 79px;
+            position: absolute;
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
     </style>
@@ -46,6 +69,7 @@
         <div class='image-block-item'>
             <div>Colorized to Identify Region of Interest</div>
             <img id='image2' src="images/neko_girl_1.jpg">
+            <div class="loader"></div> 
         </div>
         <div>ChexNet 121-layer CNN: 85% Pneumonia positive</div>
     </div>
@@ -59,6 +83,8 @@
 
         const image1 = document.querySelector('#image1');
         const image2 = document.querySelector('#image2');
+        const loader = document.querySelector('.loader');
+        
 
         function process_image(b64_image) {
             fetch('/process_image', {
@@ -68,10 +94,12 @@
             function (response){
                 return response.text();
             }).then(function(result){
-                console.log(result);
-                // const b64_image = "data:image/jpeg;base64,"+result
-                const b64_image = result;
+                // console.log(result);
+                const b64_image = "data:image/png;base64,"+result;
+                // const b64_image = result;
+                // console.log(b64_image);
                 image2.setAttribute('src', b64_image);
+                loader.setAttribute('style', 'visibility: hidden;');
             })
         }
 
@@ -79,7 +107,8 @@
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function (e) {
-                    console.log(e.target.result);
+                    // console.log(e.target.result);
+                    loader.setAttribute('style', 'visibility: visible;');
                     image1.setAttribute('src', e.target.result);
                     process_image(e.target.result);
                 };
