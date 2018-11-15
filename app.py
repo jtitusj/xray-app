@@ -10,22 +10,12 @@ from io import BytesIO
 from vis import visualization
 from keras.models import load_model
 import tensorflow as tf
-# from tensorflow import Graph, Session, load_model
-# from Keras import backend as K
 
-# os.environ["KERAS_BACKEND"] = "tensorflow"
 app = Flask(__name__, static_url_path="", static_folder="")
 
 global graph
 graph = tf.get_default_graph() 
 model_chexnet = load_model('bchou.hdf5')
-# model_chexnet._make_predict_function()
-
-# graph1 = Graph()
-# with graph1.as_default():
-#     session1 = Session()
-#     with session1.as_default():
-#         model = load_model('bchou.hdf5')
 
 @app.route('/')
 def root():
