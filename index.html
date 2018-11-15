@@ -55,11 +55,16 @@
             100% { transform: rotate(360deg); }
         }
 
+        #img-upload {
+            display: none;
+        }
+
     </style>
 </head>
 <body>
     <!-- <h1>Test</h1> -->
-    <input type='file' onchange="readURL(this);" />
+    <button id='btn-load-model'>Load Model</button>
+    <input id='img-upload' type='file' onchange="readURL(this);" />
     <div class='image-block'>
         
         <div class='image-block-item'>
@@ -71,7 +76,7 @@
             <img id='image2' src="images/neko_girl_1.jpg">
             <div class="loader"></div> 
         </div>
-        <div>ChexNet 121-layer CNN: 85% Pneumonia positive</div>
+        <div id='subtext'>ChexNet 121-layer CNN: 85% Pneumonia positive</div>
     </div>
 
     <h3>Instructions</h3>
@@ -83,20 +88,46 @@
         const image1 = document.querySelector('#image1');
         const image2 = document.querySelector('#image2');
         const loader = document.querySelector('.loader');
+        const subtext = document.querySelector('#subtext');
+        const inputimgupload = document.querySelector('#img-upload');
+        const btnloadmodel = document.querySelector('#btn-load-model');
+
+        btnloadmodel.addEventListener('click', function(e) {
+            btnloadmodel.disabled = true;
+            fetch('/init_model', {method: 'GET'}).then(
+                function(response) {
+                    return response.text();
+                }
+            ).then(function(result) {
+                if (result=='True') {
+                    console.log('Model loaded');
+                    // inputimgupload.disabled = false
+                    
+                    btnloadmodel.setAttribute('style', 'display: none;');
+                    inputimgupload.setAttribute('style', 'display: inline;');
+                }
+            })
+        })
         
         function process_image(b64_image) {
             fetch('/process_image', {
                 method: 'POST',
                 body: b64_image
             }).then(
-            function (response){
-                return response.text();
-            }).then(function(result){
-                const b64_image = "data:image/png;base64,"+result;
+            function(response) {
+                return response.json();
+            }).then(function(result) {
+                // console.log(result)
+                label = result['label'];
+                prob = result['prob'];
+                subtext.textContent = "ChexNet 121-layer CNN: "+prob+"% "+label+" positive"
+
+                img = result['image'];
+                const b64_image = "data:image/png;base64,"+img;
                 image2.setAttribute('src', b64_image);
                 loader.setAttribute('style', 'visibility: hidden;');
             }).catch(function(e) {
-                alert(e);
+                console.log(e);
                 loader.setAttribute('style', 'visibility: hidden;');
             });
         }
@@ -105,6 +136,7 @@
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function (e) {
+                    // console.log(e.target.result);
                     loader.setAttribute('style', 'visibility: visible;');
                     image1.setAttribute('src', e.target.result);
                     process_image(e.target.result);

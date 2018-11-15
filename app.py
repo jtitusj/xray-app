@@ -7,15 +7,25 @@ import json, os, base64, time, re, io
 import matplotlib.image as mpimg
 from PIL import Image
 from io import BytesIO
-from vis import visualization
-from keras.models import load_model
-import tensorflow as tf
 
 app = Flask(__name__, static_url_path="", static_folder="")
+graph = None
+model_chexnet = None
+visualization = None
 
-global graph
-graph = tf.get_default_graph() 
-model_chexnet = load_model('bchou.hdf5')
+@app.route('/init_model')
+def init_model():
+
+    global graph, model_chexnet, visualization
+
+    from vis import visualization
+    from keras.models import load_model
+    import tensorflow as tf
+
+    graph = tf.get_default_graph() 
+    model_chexnet = load_model('bchou.hdf5')
+
+    return 'True'
 
 @app.route('/')
 def root():
@@ -31,19 +41,30 @@ def process_image():
 
     img = base64.b64decode(content)
     i = io.BytesIO(img)
-    i = mpimg.imread(i, format='JPG')
+    i = mpimg.imread(i, format='PNG')
+    
+    print(i.shape)
+    print(len(i.shape))
     if len(i.shape)>2:
         i = i.mean(axis=2)
     
     label, prob, i = run(i, model_chexnet)
-    print(label, prob)
+    # # print(label, prob)
 
     img = Image.fromarray(i)
     img = convertToPNG(img)
+    img = base64.b64encode(img)
 
-    return base64.b64encode(img)
+    # label = "test"
+    # prob = 0.94
+
+    response = {'label': label, 'prob': str(prob*100), 'image': img.decode('utf-8')}
+    # print(response)
+
+    return json.dumps(response)
 
 def convertToPNG(im):
+    im = im.convert('RGB') # fix for cannot write mode f to jpeg/png
     with BytesIO() as f:
         im.save(f, format='PNG')
         return f.getvalue()
@@ -81,7 +102,7 @@ def run(input_img, model):
 
     # predict for image
     input_ = np.array([img_scaled])
-    print(input_.shape)
+    # print(input_.shape)
     # prediction = model.predict(input_)[0]
 
     with graph.as_default():
