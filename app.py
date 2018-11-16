@@ -15,8 +15,11 @@ visualization = None
 
 @app.route('/init_model')
 def init_model():
-
+    
     global graph, model_chexnet, visualization
+    
+    if graph != None:
+        return 'True'
 
     from vis import visualization
     from keras.models import load_model
@@ -29,10 +32,11 @@ def init_model():
 
 @app.route('/')
 def root():
-    return send_from_directory('', 'index.html')
+    return send_from_directory('', 'web/index.html')
 
 @app.route('/process_image', methods=['POST'])
 def process_image():
+    # time.sleep(1)
     # process
     encoded_image = request.data
     encoded_image = re.findall(r'''(data:image\/\S+;base64,)(.+)''', encoded_image.decode('utf-8'))
@@ -48,18 +52,15 @@ def process_image():
     if len(i.shape)>2:
         i = i.mean(axis=2)
     
+    label = "test"
+    prob = 0.94
     label, prob, i = run(i, model_chexnet)
-    # # print(label, prob)
 
     img = Image.fromarray(i)
     img = convertToPNG(img)
     img = base64.b64encode(img)
 
-    # label = "test"
-    # prob = 0.94
-
     response = {'label': label, 'prob': str(prob*100), 'image': img.decode('utf-8')}
-    # print(response)
 
     return json.dumps(response)
 

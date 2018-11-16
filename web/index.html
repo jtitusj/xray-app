@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Machine X-Ray Vision</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" 
+            integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" 
+            crossorigin="anonymous">
+    <link rel="stylesheet" types="text/css" href="web/css/bulma.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="web/css/main.css" />
+    
+    <style>
+    </style>
+</head>
+<body>
+    <div id="main-content">
+        <h1 class="title is-2">Machine X-Ray Vision</h1>
+        
+        <hr>
+        <h3 class="title is-3" id="instructions">Instructions</h3>
+        <p>Select an X-ray image and wait for the model to process the image.</p>
+
+        <div id="main-app">
+            <h1 id="loading-model" data-text="Loading model...">Loading model...</h1>
+            <div class="field">
+                <div class="file has-name is-info is-centered" id="img-upload">
+                    <label class="file-label" id="img-upload-content">
+                        <input class="file-input" type="file" onchange="readURL(this);">
+                        <span class="file-cta">
+                        <span class="file-icon">
+                            <i class="fas fa-upload"></i>
+                        </span>
+                        <span class="file-label">
+                            Choose an image…
+                        </span>
+                        </span>
+                        <span class="file-name" style="width:400px;"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class='image-block'>
+            
+            <div class='image-block-item'>
+                <div>Original X-ray image</div>
+                <img id='image1' src="web/images/placeholder.png">
+            </div>
+            <div style="display:inline-block; width:50px;"></div>
+            <div class='image-block-item'>
+                <div>Colorized to Identify Region of Interest</div>
+                <img id='image2' src="web/images/placeholder.png">
+                <div class="loader"></div> 
+            </div>
+            <div id='subtext'>ChexNet 121-layer CNN</div>
+        </div>
+
+        <div class="learn-more-text">Click here to learn more</div>
+        <div class="learn-more-content">
+
+            <h3 class="title is-3">Data Source</h3>
+            <p>The dataset of X-ray images is from the National Institutes of Health (NIH). There are 14 labels or classes, namely: 
+                Atelectasis, Cardiomegaly, Effusion, Infiltration, Mass, Nodule, Pneumonia, Pneumothorax, Consolidation, Edema, 
+                Emphysema, Fibrosis, Pleural Thickening, and Hernia.</p>
+            <h3 class="title is-3">Model Used</h3>
+            <p>For the model, we adapted <a href="https://arxiv.org/abs/1711.05225">CheXNet</a>, which is a 121-layer convolutional neural network. The model accepts an X-ray 
+                image and returns the probability of the detected thoracic disease. Moreover, we created a <a href="https://jacobgil.github.io/deeplearning/class-activation-maps">class activation map</a> 
+                which outputs a heatmap of the region of interest from the image.</p>
+            <h3 class="title is-3">Other Applications</h3>
+            <p>The model can also be used for any other machine vision projects especially those with regards to health.</p>
+            <h3 class="title is-3">References</h3>
+            <ol>
+                <li><a href="https://stanfordmlgroup.github.io/projects/chexnet/">CheXNet Github Page</a></li>
+                <li><a href="https://arxiv.org/abs/1711.05225">CheXNet Paper</a></li>
+                <li><a href="https://jacobgil.github.io/deeplearning/class-activation-maps">Class Activation Map in Keras</a></li>
+            </ol>
+
+            <h1 class="subtitle is-6">Web app created by: Titus Jungao and Jude Teves</h1>    
+
+        </div>
+    </div>
+
+    <script src="web/js/main.js"></script>
+</body>
+</html>

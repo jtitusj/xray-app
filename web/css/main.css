@@ -1,0 +1,150 @@
+body {
+    background-color: lightslategray;
+    margin: 0;
+}
+
+#main-content {
+    padding: 30px;
+    margin: 0 auto;
+    max-width: 1000px;
+    width: 80%;
+    background-color: white;
+}
+.image-block {
+    text-align: center;
+    margin: 0 auto;
+    padding: 5px;
+    border: lightslategray solid 3px;
+    border-radius: 20px;
+}
+
+.image-block-item {
+    position: relative;
+}
+
+.image-block > .image-block-item {
+    display: inline-block;
+}
+
+.image-block-item > div {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#subtext {
+    font-size: 18px;
+}
+
+.image-block-item > img {
+    width: 300px;
+    height: 300px;
+}
+
+.loader {
+    visibility: hidden;
+    top: 130px;
+    left: 105px;
+    position: absolute;
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+h1 {
+    font-size: 4em;
+}
+h1:before {
+    content: attr(data-text);
+    position: absolute;
+    overflow: hidden;
+    max-width: 7em;
+    white-space: nowrap;
+    color: rgb(32, 156, 238);
+    animation: loading 4s infinite;
+}
+@keyframes loading {
+    0% {
+        max-width: 0;
+    }
+}
+
+#img-upload {
+    display: none;
+    margin: 0 auto;
+}
+
+#img-upload-content {
+    margin: 0 auto;
+}
+
+.field {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.learn-more-content > .subtitle {
+    text-align: right;
+    padding-top: 30px;
+    /* margin-bottom: 0.5rem; */
+}
+
+.learn-more-content > h3.title {
+    padding-top: 30px;
+    margin-bottom: 0.5rem;
+}
+
+#main-content > h3.title#instructions {
+    padding-top: 0px;
+    margin-bottom: 0.5rem;
+}
+
+hr {
+    background-color: lightslategray;
+}
+
+#main-app {
+    text-align: center;
+    margin-top: 30px;
+}
+
+ol {
+    margin-left: 30px;
+}
+
+.learn-more-text {
+    margin: 30px;
+    font-size: 25px;
+    color: #3498db;
+    font-weight: 600;
+}
+
+.learn-more-text:hover {
+    color: #1478bb;
+    cursor: pointer;
+}
+
+.learn-more-content {
+    display: none;
+}
+
+p {
+    text-align: justify;
+}
+
+#image1 {
+
+}
+
+#image1:hover {
+    cursor: pointer;
+    opacity: 0.5;
+}
