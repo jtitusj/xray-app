@@ -8,25 +8,6 @@ const loadingmodel = document.querySelector('#loading-model');
 const learnmore = document.querySelector('.learn-more-text');
 const learnmorecontent = document.querySelector('.learn-more-content');
 const fileinput = document.querySelector('.file-input');
-// const btnloadmodel = document.querySelector('#btn-load-model');
-
-// btnloadmodel.addEventListener('click', function(e) {
-//     btnloadmodel.disabled = true;
-//     fetch('/init_model', {method: 'GET'}).then(
-//         function(response) {
-//             return response.text();
-//         }
-//     ).then(function(result) {
-//         if (result=='True') {
-//             console.log('Model loaded');
-//             // inputimgupload.disabled = false
-            
-//             btnloadmodel.setAttribute('style', 'display: none;');
-//             inputimgupload.setAttribute('style', 'display: inline-block;');
-//         }
-//     })
-// })
-
 
 learnmore.addEventListener('click', function(e) {
     learnmore.setAttribute('style', 'display: none;');
@@ -75,8 +56,6 @@ function process_image(b64_image) {
             }
             subtext.appendChild(span);
         }
-
-        // subtext.appendChild("ChexNet 121-layer CNN: "+prob+"% "+label);
 
         img = result['image'];
         const b64_image = "data:image/png;base64,"+img;

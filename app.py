@@ -13,6 +13,10 @@ graph = None
 model_chexnet = None
 visualization = None
 
+@app.route('/')
+def root():
+    return send_from_directory('', 'web/index.html')
+
 @app.route('/init_model')
 def init_model():
     
@@ -30,14 +34,9 @@ def init_model():
 
     return 'True'
 
-@app.route('/')
-def root():
-    return send_from_directory('', 'web/index.html')
-
 @app.route('/process_image', methods=['POST'])
 def process_image():
-    # time.sleep(1)
-    # process
+    
     encoded_image = request.data
     encoded_image = re.findall(r'''(data:image\/\S+;base64,)(.+)''', encoded_image.decode('utf-8'))
     metadata = encoded_image[0][0]
@@ -47,13 +46,9 @@ def process_image():
     i = io.BytesIO(img)
     i = mpimg.imread(i, format='PNG')
     
-    print(i.shape)
-    print(len(i.shape))
     if len(i.shape)>2:
         i = i.mean(axis=2)
     
-    label = "test"
-    prob = 0.94
     label, prob, i = run(i, model_chexnet)
 
     img = Image.fromarray(i)
@@ -103,8 +98,6 @@ def run(input_img, model):
 
     # predict for image
     input_ = np.array([img_scaled])
-    # print(input_.shape)
-    # prediction = model.predict(input_)[0]
 
     with graph.as_default():
         prediction = model.predict(input_)[0]

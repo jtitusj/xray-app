@@ -94,7 +94,6 @@ h1:before {
 .learn-more-content > .subtitle {
     text-align: right;
     padding-top: 30px;
-    /* margin-bottom: 0.5rem; */
 }
 
 .learn-more-content > h3.title {
@@ -138,10 +137,6 @@ ol {
 
 p {
     text-align: justify;
-}
-
-#image1 {
-
 }
 
 #image1:hover {
